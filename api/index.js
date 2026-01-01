@@ -4,16 +4,18 @@
 // ⚠️ ملاحظة: في Vercel Serverless، البيانات في الذاكرة مؤقتة فقط
 // هذه البيانات ستُفقد عند إعادة تشغيل Function
 
-// آخر قراءة (مؤقت - في الذاكرة فقط)
-let lastReading = {
-  temperature: 0,
-  humidity: 0,
-  heatIndex: 0,
-  gasLevel: 0,
-  lightLevel: 0,
-  timestamp: Date.now(),
-  status: 'waiting'
-};
+// استخدام global object للمشاركة بين invocations (في نفس container)
+if (!global.lastReading) {
+  global.lastReading = {
+    temperature: 0,
+    humidity: 0,
+    heatIndex: 0,
+    gasLevel: 0,
+    lightLevel: 0,
+    timestamp: Date.now(),
+    status: 'waiting'
+  };
+}
 
 module.exports = function handler(req, res) {
   // CORS
@@ -26,10 +28,10 @@ module.exports = function handler(req, res) {
   }
 
   // استخراج المسار من query string
-  const path = req.query.path || req.url.split('?')[0];
+  const path = req.query.path || req.url.split('?')[0].replace('/api/', '');
 
   // POST /api/data - استقبال البيانات من ESP32 (عرض فقط)
-  if (req.method === 'POST' && path.includes('/api/data')) {
+  if (req.method === 'POST' && (path.includes('/api/data') || path === 'data')) {
     try {
       const { temperature, humidity, heatIndex, gasLevel, lightLevel } = req.body;
       
@@ -41,7 +43,7 @@ module.exports = function handler(req, res) {
       }
       
       // حفظ آخر قراءة (مؤقت فقط - في الذاكرة)
-      lastReading = {
+      global.lastReading = {
         temperature: parseFloat(temperature),
         humidity: parseFloat(humidity),
         heatIndex: parseFloat(heatIndex) || parseFloat(temperature),
@@ -55,7 +57,7 @@ module.exports = function handler(req, res) {
       return res.json({
         success: true,
         message: 'Data received',
-        data: lastReading
+        data: global.lastReading
       });
     } catch (error) {
       console.error('Error:', error);
@@ -67,12 +69,20 @@ module.exports = function handler(req, res) {
   }
 
   // GET /api/current - عرض آخر قراءة
-  if (req.method === 'GET' && path.includes('/api/current')) {
+  if (req.method === 'GET' && (path.includes('/api/current') || path === 'current')) {
     return res.json({
       success: true,
-      data: lastReading,
+      data: global.lastReading || {
+        temperature: 0,
+        humidity: 0,
+        heatIndex: 0,
+        gasLevel: 0,
+        lightLevel: 0,
+        timestamp: Date.now(),
+        status: 'waiting'
+      },
       stats: {
-        totalReadings: lastReading.status === 'active' ? 1 : 0
+        totalReadings: (global.lastReading && global.lastReading.status === 'active') ? 1 : 0
       }
     });
   }
