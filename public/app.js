@@ -229,19 +229,20 @@ function updateDisplay(data, stats) {
     updateLightStatus(data.lightLevel || 0);
     updateOverallStatus(data.temperature, data.humidity, data.gasLevel || 0, data.lightLevel || 0);
     
-    // تحديث الإحصائيات
+    // تحديث الإحصائيات (عرض فقط - بدون تخزين)
     if (stats) {
-        document.getElementById('maxTemp').textContent = stats.maxTemp !== -999 ? stats.maxTemp.toFixed(1) + '°C' : '--';
-        document.getElementById('minTemp').textContent = stats.minTemp !== 999 ? stats.minTemp.toFixed(1) + '°C' : '--';
-        document.getElementById('avgTemp').textContent = stats.avgTemp ? stats.avgTemp.toFixed(1) + '°C' : '--';
-        document.getElementById('maxHum').textContent = stats.maxHum ? stats.maxHum.toFixed(1) + '%' : '--';
-        document.getElementById('minHum').textContent = stats.minHum !== 100 ? stats.minHum.toFixed(1) + '%' : '--';
-        document.getElementById('avgHum').textContent = stats.avgHum ? stats.avgHum.toFixed(1) + '%' : '--';
-        document.getElementById('maxGas').textContent = stats.maxGas ? stats.maxGas.toFixed(0) : '--';
-        document.getElementById('avgGas').textContent = stats.avgGas ? stats.avgGas.toFixed(0) : '--';
-        document.getElementById('maxLight').textContent = stats.maxLight ? stats.maxLight.toFixed(1) + ' Lux' : '--';
-        document.getElementById('avgLight').textContent = stats.avgLight ? stats.avgLight.toFixed(1) + ' Lux' : '--';
-        document.getElementById('totalReadings').textContent = stats.totalReadings || 0;
+        // عرض "عرض فقط" في الإحصائيات
+        document.getElementById('maxTemp').textContent = '--';
+        document.getElementById('minTemp').textContent = '--';
+        document.getElementById('avgTemp').textContent = '--';
+        document.getElementById('maxHum').textContent = '--';
+        document.getElementById('minHum').textContent = '--';
+        document.getElementById('avgHum').textContent = '--';
+        document.getElementById('maxGas').textContent = '--';
+        document.getElementById('avgGas').textContent = '--';
+        document.getElementById('maxLight').textContent = '--';
+        document.getElementById('avgLight').textContent = '--';
+        document.getElementById('totalReadings').textContent = 'عرض فقط';
     }
 }
 
