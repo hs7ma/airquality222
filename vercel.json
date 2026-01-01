@@ -1,9 +1,16 @@
 {
-  "version": 2,
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index.js"
+      "source": "/api/data",
+      "destination": "/api/data.js"
+    },
+    {
+      "source": "/api/current",
+      "destination": "/api/current.js"
+    },
+    {
+      "source": "/api/history",
+      "destination": "/api/history.js"
     }
   ]
 }
