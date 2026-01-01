@@ -1,41 +1,13 @@
 // Vercel Serverless Function - POST /api/data
 // استقبال البيانات من ESP32
 
-// تخزين البيانات (مؤقت - في الذاكرة)
-// في الإنتاج، استخدم قاعدة بيانات
-let currentData = {
-  temperature: 0,
-  humidity: 0,
-  heatIndex: 0,
-  gasLevel: 0,
-  lightLevel: 0,
-  timestamp: Date.now(),
-  status: 'waiting'
-};
+// ⚠️ ملاحظة مهمة: في Vercel Serverless Functions، كل invocation منفصل
+// البيانات في الذاكرة قد تُفقد. للحل الدائم، استخدم قاعدة بيانات.
 
-// هذا سيتم مشاركته بين جميع functions - لكن في Serverless قد لا يعمل
-// للحل الدائم، استخدم قاعدة بيانات
-global.airqualityData = global.airqualityData || {
-  current: currentData,
-  history: [],
-  stats: {
-    maxTemp: -999,
-    minTemp: 999,
-    maxHum: 0,
-    minHum: 100,
-    avgTemp: 0,
-    avgHum: 0,
-    maxGas: 0,
-    minGas: 999999,
-    avgGas: 0,
-    maxLight: 0,
-    minLight: 999999,
-    avgLight: 0,
-    totalReadings: 0
-  }
-};
+// استخدام ملف مشترك للبيانات
+const sharedData = require('./_shared');
 
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -66,18 +38,18 @@ export default function handler(req, res) {
         status: 'active'
       };
       
-      global.airqualityData.current = data;
-      global.airqualityData.history.push({
+      sharedData.current = data;
+      sharedData.history.push({
         ...data,
-        id: global.airqualityData.history.length + 1
+        id: sharedData.history.length + 1
       });
       
-      if (global.airqualityData.history.length > 100) {
-        global.airqualityData.history.shift();
+      if (sharedData.history.length > 100) {
+        sharedData.history.shift();
       }
       
       // تحديث الإحصائيات
-      const stats = global.airqualityData.stats;
+      const stats = sharedData.stats;
       if (data.temperature > stats.maxTemp) stats.maxTemp = data.temperature;
       if (data.temperature < stats.minTemp) stats.minTemp = data.temperature;
       if (data.humidity > stats.maxHum) stats.maxHum = data.humidity;
@@ -88,9 +60,19 @@ export default function handler(req, res) {
       if (data.lightLevel < stats.minLight) stats.minLight = data.lightLevel;
       stats.totalReadings++;
       
-      if (global.airqualityData.history.length > 0) {
-        stats.avgTemp = global.airqualityData.history.reduce((sum, item) => sum + item.temperature, 0) / global.airqualityData.history.length;
-        stats.avgHum = global.airqualityData.history.reduce((sum, item) => sum + item.humidity, 0) / global.airqualityData.history.length;
+      if (sharedData.history.length > 0) {
+        stats.avgTemp = sharedData.history.reduce((sum, item) => sum + item.temperature, 0) / sharedData.history.length;
+        stats.avgHum = sharedData.history.reduce((sum, item) => sum + item.humidity, 0) / sharedData.history.length;
+        
+        const gasReadings = sharedData.history.filter(item => item.gasLevel > 0);
+        if (gasReadings.length > 0) {
+          stats.avgGas = gasReadings.reduce((sum, item) => sum + item.gasLevel, 0) / gasReadings.length;
+        }
+        
+        const lightReadings = sharedData.history.filter(item => item.lightLevel > 0);
+        if (lightReadings.length > 0) {
+          stats.avgLight = lightReadings.reduce((sum, item) => sum + item.lightLevel, 0) / lightReadings.length;
+        }
       }
       
       return res.json({
