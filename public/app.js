@@ -102,9 +102,12 @@ function initWebSocket() {
     console.log('🔌 الاتصال بـ WebSocket...');
     
     // إذا wsBase غير متاح أو تم تعطيل WebSocket من config.js
-    const disableWs = !!(window.__APP_CONFIG__ && window.__APP_CONFIG__.disableWebSocket);
+    const disableWsFromConfig = !!(window.__APP_CONFIG__ && window.__APP_CONFIG__.disableWebSocket);
+    // تعطيل تلقائي على Vercel لأن WebSocket غير مدعوم بشكل موثوق
+    const isVercelHost = /(?:^|\.)vercel\.app$/i.test(window.location.hostname);
+    const disableWs = disableWsFromConfig || isVercelHost;
     if (!config.wsBase || disableWs) {
-        console.log('ℹ️ WebSocket غير مفعّل، سيتم استخدام Polling بدلاً منه');
+        console.log('ℹ️ WebSocket غير مفعّل (Vercel/Config)، سيتم استخدام Polling بدلاً منه');
         updateConnectionStatus(false);
         startPolling();
         return;
@@ -150,6 +153,11 @@ function initWebSocket() {
         updateConnectionStatus(false);
         startPolling();
         
+        // لا تعاود المحاولة بشكل لا نهائي على Vercel/عند تعطيل WS
+        const disableWsFromConfig = !!(window.__APP_CONFIG__ && window.__APP_CONFIG__.disableWebSocket);
+        const isVercelHost = /(?:^|\.)vercel\.app$/i.test(window.location.hostname);
+        if (disableWsFromConfig || isVercelHost) return;
+
         // إعادة المحاولة بعد 5 ثواني
         setTimeout(() => {
             console.log('🔄 إعادة الاتصال...');
