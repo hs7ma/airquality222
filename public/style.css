@@ -1,0 +1,206 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    direction: rtl;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    color: white;
+    margin-bottom: 30px;
+    padding: 20px;
+}
+
+header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.subtitle {
+    font-size: 1.2em;
+    opacity: 0.9;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #ccc;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.connected {
+    background-color: #4CAF50;
+}
+
+.status-dot.disconnected {
+    background-color: #f44336;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.sensors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.sensor-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.sensor-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.sensor-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+}
+
+.sensor-card.temperature::before {
+    background: linear-gradient(90deg, #ff6b6b, #ee5a6f);
+}
+
+.sensor-card.humidity::before {
+    background: linear-gradient(90deg, #4ecdc4, #44a08d);
+}
+
+.sensor-card.gas::before {
+    background: linear-gradient(90deg, #feca57, #ff9ff3);
+}
+
+.sensor-card.light::before {
+    background: linear-gradient(90deg, #ffd93d, #f6b93b);
+}
+
+.card-icon {
+    font-size: 3em;
+    margin-bottom: 10px;
+}
+
+.sensor-card h2 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.value {
+    font-size: 3em;
+    font-weight: bold;
+    color: #667eea;
+    margin: 10px 0;
+    transition: color 0.3s ease;
+}
+
+.unit {
+    font-size: 1.2em;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.status {
+    font-size: 0.9em;
+    padding: 5px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-top: 10px;
+    font-weight: 500;
+}
+
+.status.normal {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.status.warning {
+    background-color: #ff9800;
+    color: white;
+}
+
+.status.danger {
+    background-color: #f44336;
+    color: white;
+}
+
+.info-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.info-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.info-card h3 {
+    color: #667eea;
+    margin-bottom: 10px;
+}
+
+.info-card p {
+    color: #666;
+    font-size: 1.1em;
+}
+
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 2em;
+    }
+    
+    .sensors-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .value {
+        font-size: 2.5em;
+    }
+}
+
